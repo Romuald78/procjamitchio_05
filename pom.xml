@@ -1,0 +1,184 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.rphstudio.subwayGen</groupId>
+    <artifactId>SubwayGenerator</artifactId>
+    <version>1.0.1</version>
+    <packaging>jar</packaging>
+
+    <name>SubwayGenerator</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <main.class>fr.rphstudio.subway.launcher.MainLauncher</main.class>
+        <versionType>Development</versionType>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slick2d</groupId>
+            <artifactId>slick2d-core</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.jnlp</groupId>
+                    <artifactId>jnlp-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.dyn4j</groupId>
+            <artifactId>dyn4j</artifactId>
+            <version>3.2.3</version>
+        </dependency>
+    </dependencies>
+    
+    <repositories>
+        <repository>
+            <id>dsol-xml</id>
+            <name>Simulation @ TU Delft</name>
+            <url>http://simulation.tudelft.nl/maven/</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources/info</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        
+        <plugins>
+            <plugin>
+                <groupId>com.googlecode.mavennatives</groupId>
+                <artifactId>maven-nativedependencies-plugin</artifactId>
+                <version>0.0.7</version>
+                <configuration> 
+                    <nativesTargetDir>target/natives</nativesTargetDir> 
+                    <separateDirs>false</separateDirs> 
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>unpacknatives</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${main.class}</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo>Using env.test.properties</echo>
+                                <copy todir="${project.build.directory}/../lib" >  
+                                    <fileset dir="${project.build.directory}/natives" includes="**"/>  
+                                </copy> 
+                                <copy todir="${project.build.directory}/.." >  
+                                    <fileset dir="${project.build.directory}/../src/main/resources" includes="**"/>  
+                                </copy> 
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>            
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>1.7.15</version>
+                <executions>
+                    <execution>
+                        <id>l4j-clui</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>gui</headerType>
+                            <outfile>${project.build.directory}/${project.artifactId}-${project.version}.exe</outfile>
+                            <jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</jar>
+                            <icon>${project.build.directory}/../src/main/resources/favicon.ico</icon>
+                            <errTitle>encc</errTitle>
+                            <classPath>
+                                <mainClass>fr.rphstudio.subway.launcher.MainLauncher</mainClass>
+                                <addDependencies>true</addDependencies>
+                                <preCp>lib/slick2d-core-1.0.2.jar;lib/lwjgl-2.9.3.jar;lib/lwjgl-platform-2.9.3-natives-windows.jar;lib/jinput-2.0.5.jar;lib/jutils-1.0.0.jar;lib/jinput-platform-2.0.5-natives-windows.jar;lib/jorbis-0.0.17.jar</preCp>
+                            </classPath>
+                            <jre>
+                                <minVersion>1.8.0</minVersion>
+                                <opts>
+                                    <opt>-Djava.library.path=lib</opt>
+                                </opts>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>${project.version}.0</fileVersion>
+                                <txtFileVersion>${versionType}</txtFileVersion>
+                                <fileDescription>Global Game Jam 2018 by RPH Studio</fileDescription>
+                                <copyright>All Rights Reserved</copyright>
+                                <productVersion>${project.version}.0</productVersion>
+                                <txtProductVersion>${versionType}</txtProductVersion>
+                                <productName>subwayGen</productName>
+                                <internalName>subwayGen</internalName>
+                                <originalFilename>${project.artifactId}-${project.version}.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>bundle-release</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/main/assembly/assembly-windows.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/assembly/assembly-linux.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/assembly/assembly-mac-osx.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
