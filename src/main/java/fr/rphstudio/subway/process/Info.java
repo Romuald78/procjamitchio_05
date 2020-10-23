@@ -2,10 +2,7 @@ package fr.rphstudio.subway.process;
 
 import fr.rphstudio.ecs.component.render.RenderFont;
 import fr.rphstudio.ecs.component.render.font.SubwaySpriteFont;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -29,15 +26,18 @@ public class Info {
             this.nbStations.setPosition(initPos);
             initPos.x += 120;
             this.nbTrains.setPosition(initPos);
+
         } catch (SlickException e) {
             e.printStackTrace();
         }
     }
 
     public void render(GameContainer container, StateBasedGame game, Graphics g){
+
         this.railName.render(container, game, g);
         this.nbStations.render(container, game, g);
         this.nbTrains.render(container, game, g);
+
     }
 
 

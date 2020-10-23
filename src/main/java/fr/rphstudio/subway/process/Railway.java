@@ -99,16 +99,47 @@ public class Railway {
         }
     }
 
-    public void renderStations(Graphics g){
+    public void renderStationNames(Graphics g){
         // Draw stations
         for (int i=0; i<this.stations.size();i++){
             if(i==0 || i==this.stations.size()-1){
                 this.stations.get(i).render(g, i==0, i==this.stations.size()-1, this.getName());
             }
-            else {
+        }
+    }
+
+    public void renderStations(Graphics g){
+        // Draw stations
+        for (int i=0; i<this.stations.size();i++){
+            if(i!=0 && i!=this.stations.size()-1){
                 this.stations.get(i).render(g);
             }
         }
+    }
+
+    public List<Float> getRailAngles(Station s){
+        List<Float> angles = new ArrayList<Float>();
+        // Look for station
+        int index = -1;
+        Station prev = null;
+        Station next = null;
+        for(int i=0;i<this.stations.size();i++){
+            if (this.stations.get(i) == s){
+                index = i;
+                break;
+            }
+        }
+        if(index>0){
+            prev = this.stations.get(index-1);
+            float ang = Geometry.getAngleDegrees(s.getPosition(), prev.getPosition());
+            angles.add(ang);
+        }
+        if(index<this.stations.size()-1){
+            next = this.stations.get(index+1);
+            float ang = Geometry.getAngleDegrees(s.getPosition(), next.getPosition());
+            angles.add(ang);
+        }
+        return angles;
     }
 
 }

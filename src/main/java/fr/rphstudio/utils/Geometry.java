@@ -12,10 +12,10 @@ public class Geometry {
         return dist;
     }
 
-    public static float getAngle(Vector2f src, Vector2f dst){
+    public static float getAngleDegrees(Vector2f src, Vector2f dst){
         float dx = dst.x - src.x;
         float dy = dst.y - src.y;
         float angle = (float)Math.atan2(dy,dx);
-        return angle;
+        return (float)(angle*180/Math.PI);
     }
 }

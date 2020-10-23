@@ -15,10 +15,7 @@ import java.util.Vector;
 
 import fr.rphstudio.ecs.component.render.RenderFont;
 import fr.rphstudio.ecs.component.render.font.SubwaySpriteFont;
-import fr.rphstudio.subway.process.Info;
-import fr.rphstudio.subway.process.Railway;
-import fr.rphstudio.subway.process.Station;
-import fr.rphstudio.subway.process.Train;
+import fr.rphstudio.subway.process.*;
 import fr.rphstudio.utils.rng.Prng;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -69,6 +66,7 @@ public class State01Start extends BasicGameState
     private int             selectedRail;
     private List<Info>      infos;
     private RenderFont      title;
+    private HUD hud;
 
 
     //------------------------------------------------
@@ -261,7 +259,7 @@ public class State01Start extends BasicGameState
             }
             else{
                 // Add new station
-                Station newStation = new Station("" + stationCount, new Vector2f(x0, y0) );
+                Station newStation = new Station(rail.getName() + stationCount, new Vector2f(x0, y0) );
                 rail.addStation( newStation, first );
                 newStation.addParent(rail);
                 stationCount++;
@@ -360,9 +358,12 @@ public class State01Start extends BasicGameState
         // Load TITLE component
         Image img = new Image("./sprites/fonts/SubwaySpriteFont.png");
         // Create font objects
-        this.textCityNum = new RenderFont("---test---", img, SubwaySpriteFont.getCharInfo(), 0, 0.75f, Color.white);
+        this.textCityNum = new RenderFont("---test---", img, SubwaySpriteFont.getCharInfo(), 0, 0.75f, new Color(255,255,255,192));
         this.title       = new RenderFont("Line - Stations - Trains", img, SubwaySpriteFont.getCharInfo(), 0, 0.23f, Color.white);
         this.title.setPosition(1750, 50);
+
+        this.hud = new HUD();
+
 
         // City number
         this.cityNum = 1;
@@ -385,7 +386,6 @@ public class State01Start extends BasicGameState
         // CITY NUM TEXT
         this.textCityNum.setPosition(25,1080-50);
         this.textCityNum.setMiddleAlign(false);
-        this.textCityNum.setColor( new Color(255,255,255) );
 
         // Create train list
         this.trains = new ArrayList<Train>();
@@ -425,13 +425,18 @@ public class State01Start extends BasicGameState
         for(int i=0;i<this.railways.size();i++){
             this.railways.get(i).render(g, i == this.selectedRail);
         }
-        for(int i=0;i<this.railways.size();i++){
-            this.railways.get(i).renderStations(g);
-        }
 
         // Render trains
         for(Train t:this.trains){
             t.render(g);
+        }
+
+        // Render stations
+        for(int i=0;i<this.railways.size();i++){
+            this.railways.get(i).renderStations(g);
+        }
+        for(int i=0;i<this.railways.size();i++){
+            this.railways.get(i).renderStationNames(g);
         }
 
         // Render infos
@@ -439,10 +444,11 @@ public class State01Start extends BasicGameState
         for(Info inf:this.infos){
             inf.render(container, game, g);
         }
+        this.hud.render(container, game, g);
 
         // Render version number
         g.setColor( Color.white );
-        g.drawString(this.version, 1920-500, 1080-30);
+        g.drawString(this.version, 1300, 1080-30);
     }
 
     

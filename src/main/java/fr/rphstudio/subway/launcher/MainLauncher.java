@@ -123,11 +123,11 @@ public class MainLauncher extends StateBasedGame
         // Modify Title and Icon
         AppGameContainer appContainer = (AppGameContainer) container;
         appContainer.setVSync(true);
-        
+        appContainer.setAlwaysRender(true);
+
         // Set icons
         String[] icons = { "icon32x32.png", "icon16x16.png"};
         container.setIcons(icons);
-
         Log.setVerbose(false);
 
         // Add game state controller

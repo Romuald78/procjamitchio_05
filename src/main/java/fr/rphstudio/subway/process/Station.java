@@ -21,6 +21,9 @@ public class Station {
     private Color       color2;
     private List<Railway> parents;
     private RenderFont  renName;
+    private float       deltaX;
+    private float       deltaY;
+
 
     // Constructor
     public Station(String n, Vector2f pos){
@@ -29,6 +32,9 @@ public class Station {
         this.color  = Color.black;
         this.color2 = Color.black;
         this.parents = new ArrayList<>();
+
+        this.deltaX = 0;
+        this.deltaY = 0;
 
         try {
             Image img = new Image("./sprites/fonts/SubwaySpriteFont.png");
@@ -39,7 +45,40 @@ public class Station {
         }
     }
 
+    private void computeDeltas(){
+        this.deltaX = 0;
+        this.deltaY = 0;
+        // Compute best position for station name
+        if( this.parents.size() > 1 ){
+            List<Float> angs = new ArrayList<Float>();
+            for(Railway rail : this.parents){
+                angs.addAll( rail.getRailAngles(this) );
+            }
+            // Search for angle
+            float savedTarget = -180;
+            float savedScore  = 0;
+            for(float target=-180; target<180; target+=20){
+                float score = 1000000;
+                for(Float f : angs){
+                    float diff = Math.abs(f-target);
+                    if (diff>180){
+                        diff = 360-diff;
+                    }
+                    score = Math.min(score, diff);
+                }
+                if(score > savedScore){
+                    savedScore = score;
+                    savedTarget = target;
+                }
+            }
+            float radius = this.parents.size()*5+18;
+            this.deltaX = (float)(radius*Math.cos(savedTarget*Math.PI/180));
+            this.deltaY = (float)(radius*Math.sin(savedTarget*Math.PI/180));
+        }
+    }
+
     public void addParent(Railway r){
+        // Add parent
         this.parents.add(r);
     }
     public void removeParent(Railway r){
@@ -89,9 +128,13 @@ public class Station {
         darkColor2.a *=0.9;
         // FIRST station
         if(isFirst || isLast){
+            float radius  = 4+4*this.parents.size();
+            radius *= 1.25;
+            radius = Math.max(radius, 20);
+
             // color OVAL (big)
             g.setColor(darkColor);
-            g.fillOval(this.position.x-20,this.position.y-20,40,40);
+            g.fillOval(this.position.x-radius,this.position.y-radius,2*radius,2*radius);
             // color OVAL (big)
             g.setColor(darkColor2);
             g.fillOval(this.position.x-14,this.position.y-14,28,28);
@@ -119,14 +162,18 @@ public class Station {
         if(isFirst || isLast){
             // Line name/number
             String displayName = railName;
+/*
             if(isFirst){
                 displayName += "1";
             }
             if(isLast){
                 displayName += "2";
             }
-            float deltaY = this.parents.size()>1 ? -40 : -3;
-            this.renName.setPosition(this.position.x, this.position.y+deltaY);
+*/
+
+            // Compute name position before display
+            this.computeDeltas();
+            this.renName.setPosition(this.position.x+this.deltaX, this.position.y+this.deltaY-3);
             this.renName.setMessage(displayName);
             this.renName.render(null, null, g);
 
